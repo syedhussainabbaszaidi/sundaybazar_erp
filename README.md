@@ -1,5 +1,5 @@
 # SundayBazar ERP (Laravel + MySQL + Shopify)
-
+# hussain
 The SundayBazar staff ERP — orders & confirmation calls, dispatch (PostEx / TCS / own rider), warehouse & WMS, listing &
 pricing, purchasing, accounts, expenses, HR & payroll, tickets, WhatsApp/Instagram inbox, marketing — on Laravel 12 with
 MySQL/MariaDB, connected to the Shopify store `sundaybazar-001.myshopify.com` (www.sundaybazar.com.pk).
