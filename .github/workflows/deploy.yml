@@ -28,7 +28,13 @@ jobs:
     steps:
       - name: Secrets missing
         if: env.HAS_FTP != 'true'
-        run: echo "::warning::FTP_SERVER / FTP_USERNAME / FTP_PASSWORD are not set - deploy skipped."
+        env:
+          S: ${{ secrets.FTP_SERVER != '' }}
+          U: ${{ secrets.FTP_USERNAME != '' }}
+          P: ${{ secrets.FTP_PASSWORD != '' }}
+        run: |
+          echo "FTP_SERVER set: $S | FTP_USERNAME set: $U | FTP_PASSWORD set: $P"
+          echo "::warning::Missing repository secret(s) - deploy skipped. FTP_SERVER=$S FTP_USERNAME=$U FTP_PASSWORD=$P (Settings > Secrets and variables > Actions > Repository secrets)"
 
       - uses: actions/checkout@v4
         if: env.HAS_FTP == 'true'
