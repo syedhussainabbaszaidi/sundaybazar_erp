@@ -1,0 +1,79 @@
+# Live site health check: after every deploy, every 30 minutes, or by hand (Actions -> Health check -> Run workflow).
+# Fails (and GitHub e-mails you) when a page or asset is broken, a private file is reachable,
+# or the live site is not on the latest deployed commit.
+name: Health check
+
+on:
+  workflow_run:
+    workflows: [Deploy to cPanel]
+    types: [completed]
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      SITE: https://erp.sundaybazar.com.pk
+    steps:
+      - name: Pages, routes and assets
+        run: |
+          fail=0
+          bust="hc=$(date +%s)"
+          code() { curl -s -o /dev/null -m 30 -w '%{http_code}' "$SITE$1"; }
+          expect() { # path, allowed codes
+            c=$(code "$1"); if [[ " $2 " == *" $c "* ]]; then echo "ok   $c $1"; else echo "::error::$1 returned $c (expected $2)"; fail=1; fi
+          }
+          expect "/up"        "200"
+          expect "/"          "200 301 302"
+          expect "/login"     "200"
+          expect "/register"  "200 302"
+          expect "/admin"     "200 302"
+          expect "/dashboard" "200 302"
+          for f in erp/app.js erp/app.css erp/auth.js erp/auth.css erp/pre.js erp/post.js erp/shopify.js erp/access.js \
+                   erp/fonts/poppins-latin-400.woff2 favicon.ico favicon-32.png apple-touch-icon.png icon-192.png \
+                   icon-512.png site.webmanifest sundaybazarlogo.png robots.txt; do
+            expect "/$f?$bust" "200"
+          done
+          # every asset the login page really links to must load (catches wrong /public/ prefixes)
+          for u in $(curl -s -m 30 "$SITE/login" | grep -oE '(src|href)="[^"#]+"' | sed -E 's/^(src|href)="//; s/"$//; s/&amp;/\&/g' | sort -u); do
+            case "$u" in
+              "$SITE"/*) u="${u#"$SITE"}" ;;
+              /*) ;;
+              *) continue ;;
+            esac
+            [[ "$u" == /public/* ]] && { echo "::error::asset URL has a /public/ prefix: $u"; fail=1; }
+            expect "$u" "200"
+          done
+          exit $fail
+
+      - name: Private files are not reachable
+        if: always()
+        run: |
+          fail=0
+          for p in /.env /.env.production.example /.git/config /.git/HEAD /composer.json /composer.lock /database.sql \
+                   /artisan /storage/logs/laravel.log /vendor/autoload.php /app/ /config/app.php /routes/web.php \
+                   /bootstrap/app.php /deploy/deploy.sh /public/.env /.ftp-deploy-sync-state.json /php.ini /.user.ini; do
+            c=$(curl -s -o /dev/null -m 30 -w '%{http_code}' "$SITE$p")
+            if [ "$c" = "403" ] || [ "$c" = "404" ]; then echo "ok   $c $p"; else echo "::error::PRIVATE $p returned $c"; fail=1; fi
+          done
+          # debug mode must be off: an unknown API path must not show a stack trace
+          if curl -s -m 30 "$SITE/api/__health_missing" | grep -qiE 'stack ?trace|"trace"|whoops|vendor/laravel'; then
+            echo "::error::APP_DEBUG looks ON in production"; fail=1
+          fi
+          exit $fail
+
+      - name: Live site runs the latest deployed commit
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          want=$(gh api "repos/${{ github.repository }}/actions/workflows/deploy.yml/runs?status=success&per_page=1" --jq '.workflow_runs[0].head_sha' 2>/dev/null || true)
+          have=$(curl -s -m 30 "$SITE/version.txt?hc=$(date +%s)" | tr -d '[:space:]')
+          echo "last successful deploy: ${want:-none}  live version.txt: ${have:-missing}"
+          if [ -n "$want" ] && [ "$want" != "$have" ]; then echo "::error::Live site is not on the last deployed commit"; exit 1; fi

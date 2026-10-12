@@ -51,6 +51,10 @@ jobs:
         if: env.HAS_FTP == 'true'
         run: composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
+      - name: Stamp the commit (checked by the Health check workflow)
+        if: env.HAS_FTP == 'true'
+        run: echo "$GITHUB_SHA" > public/version.txt
+
       - name: Upload changed files over FTP
         if: env.HAS_FTP == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
