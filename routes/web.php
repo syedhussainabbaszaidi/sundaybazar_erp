@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DeployHookController;
 use App\Http\Controllers\PageController;
 use App\Http\Middleware\ErpPage;
 use Illuminate\Support\Facades\Route;
@@ -16,3 +17,6 @@ Route::get('/login', [PageController::class, 'login'])->name('login');
 Route::get('/register', [PageController::class, 'register'])->name('register');
 Route::get('/dashboard', [PageController::class, 'app'])->middleware(ErpPage::class.':dashboard')->name('dashboard');
 Route::get('/admin', [PageController::class, 'app'])->middleware(ErpPage::class.':admin')->name('admin');
+
+// GitHub FTP deploy: migrate + erp:install + fresh caches (off unless ERP_DEPLOY_TOKEN is set)
+Route::post('/deploy-hook', DeployHookController::class)->middleware('throttle:5,1');

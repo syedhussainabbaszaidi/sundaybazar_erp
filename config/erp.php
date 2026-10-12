@@ -27,6 +27,10 @@ return [
     'snapshot_token' => env('ERP_SNAPSHOT_TOKEN', ''),
     'production_url' => env('ERP_PRODUCTION_URL', ''),
 
+    // POST /deploy-hook (migrate + erp:install + fresh caches) after an FTP deploy from GitHub Actions.
+    // Same value as the GitHub secret DEPLOY_TOKEN (32+ random characters). Empty = off.
+    'deploy_token' => env('ERP_DEPLOY_TOKEN', ''),
+
     // daily database backups (default storage/app/private/backups)
     'backup_dir' => env('ERP_BACKUP_DIR', ''),
     'backup_keep_days' => (int) env('ERP_BACKUP_KEEP_DAYS', 30),

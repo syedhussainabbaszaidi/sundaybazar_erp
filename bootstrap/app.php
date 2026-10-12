@@ -21,7 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // /api/* is protected by the X-SB header check in ErpApiController (the browser app always sends it,
         // other sites cannot without a CORS preflight) plus SameSite=strict session cookies.
         // Webhooks under /api/hooks/* are verified by HMAC signature instead.
-        $middleware->validateCsrfTokens(except: ['api/*']);
+        // /deploy-hook is checked against ERP_DEPLOY_TOKEN instead.
+        $middleware->validateCsrfTokens(except: ['api/*', 'deploy-hook']);
         $middleware->prepend(\App\Http\Middleware\KeepEncodedSlashes::class);
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
         $middleware->trustProxies(at: '*');
