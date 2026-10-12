@@ -1,0 +1,49 @@
+# Push to main -> live server updates itself.
+# GitHub logs into cPanel over SSH and runs deploy/deploy.sh (git pull, composer, migrate, caches).
+# Needs these repository secrets (GitHub -> Settings -> Secrets and variables -> Actions):
+#   CPANEL_HOST      server host name or IP (e.g. server123.hostingco.com)
+#   CPANEL_USER      cPanel username
+#   CPANEL_SSH_KEY   private key whose .pub is authorised in cPanel -> SSH Access
+#   CPANEL_PORT      optional, SSH port (default 22)
+#   CPANEL_APP_PATH  optional, project folder on the server (default ~/sundaybazar-erp)
+#   CPANEL_PHP       optional, PHP 8.2+ binary (e.g. /opt/cpanel/ea-php83/root/usr/bin/php)
+name: Deploy to cPanel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HAS_SECRETS: ${{ secrets.CPANEL_HOST != '' && secrets.CPANEL_USER != '' && secrets.CPANEL_SSH_KEY != '' }}
+    steps:
+      - name: Secrets missing
+        if: env.HAS_SECRETS != 'true'
+        run: echo "::warning::CPANEL_HOST / CPANEL_USER / CPANEL_SSH_KEY are not set - deploy skipped."
+
+      - name: Run deploy on the server
+        if: env.HAS_SECRETS == 'true'
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          APP_PATH: ${{ secrets.CPANEL_APP_PATH }}
+          PHP_BIN: ${{ secrets.CPANEL_PHP }}
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USER }}
+          key: ${{ secrets.CPANEL_SSH_KEY }}
+          port: ${{ secrets.CPANEL_PORT || 22 }}
+          envs: APP_PATH,PHP_BIN
+          command_timeout: 15m
+          script: |
+            set -e
+            export PATH="/opt/cpanel/composer/bin:/usr/local/bin:$PATH"
+            cd "${APP_PATH:-$HOME/sundaybazar-erp}"
+            if [ -n "$PHP_BIN" ]; then export PHP="$PHP_BIN"; fi
+            bash deploy/deploy.sh

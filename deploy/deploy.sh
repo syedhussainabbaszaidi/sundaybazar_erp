@@ -15,7 +15,7 @@ if [ "${1:-}" != "--no-pull" ]; then
   git pull --ff-only
 fi
 if command -v composer >/dev/null 2>&1; then
-  composer install --no-dev --optimize-autoloader --no-interaction
+  "$PHP" "$(command -v composer)" install --no-dev --optimize-autoloader --no-interaction
 else
   echo "composer not found: using the vendor/ folder that was uploaded"
 fi
