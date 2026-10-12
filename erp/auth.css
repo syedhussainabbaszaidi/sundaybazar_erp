@@ -1,0 +1,89 @@
+/* SundayBazar ERP — login & registration. Uses the tokens of app.css, so light/dark themes and Poppins match the ERP. */
+.auth-body{min-height:100vh;min-height:100dvh;background:var(--bg)}
+.auth{display:grid;grid-template-columns:minmax(380px,44%) minmax(0,1fr);min-height:100vh;min-height:100dvh}
+
+/* ---- brand side (deep green, the logo is white) ---- */
+.auth-brand{position:relative;overflow:hidden;color:#fff;display:flex;flex-direction:column;justify-content:space-between;padding:56px 56px 32px;
+  background:radial-gradient(90% 70% at 0% 0%,#24563f 0%,rgba(36,86,63,0) 60%),radial-gradient(70% 60% at 100% 100%,rgba(217,98,43,.28) 0%,rgba(217,98,43,0) 65%),linear-gradient(160deg,#143426 0%,#0d241a 100%)}
+.auth-brand::before{content:"";position:absolute;inset:0;opacity:.07;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.9) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.9) 1px,transparent 1px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(80% 70% at 30% 40%,#000 0%,transparent 75%);mask-image:radial-gradient(80% 70% at 30% 40%,#000 0%,transparent 75%)}
+.auth-brand-in{position:relative;z-index:1;max-width:470px;margin:auto 0}
+.auth-logo{display:block;width:150px;height:auto}
+.auth-kicker{margin:22px 0 0;font-size:11.5px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.62)}
+.auth-brand h2{font-size:clamp(24px,2.3vw,32px);line-height:1.28;letter-spacing:-.02em;margin:10px 0 30px;font-weight:600;color:#fff}
+.auth-points{list-style:none;padding:0;margin:0;display:grid;gap:15px;font-size:14.5px;color:rgba(255,255,255,.9)}
+.auth-points li{display:flex;gap:12px;align-items:center}
+.auth-points span{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);color:#ffb48d;flex:none}
+.auth-brand-foot{position:relative;z-index:1;margin:32px 0 0;font-size:12px;color:rgba(255,255,255,.5)}
+
+/* ---- form side ---- */
+.auth-panel{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;gap:20px;min-width:0}
+.auth-card{width:100%;max-width:440px;background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:40px 38px 32px;box-shadow:0 1px 2px rgba(16,24,20,.04),0 24px 60px rgba(16,24,20,.08)}
+.auth-card h1{margin:0 0 6px;font-size:26px;font-weight:600;letter-spacing:-.025em;color:var(--ink);line-height:1.25}
+.auth-sub{margin:0 0 26px;color:var(--muted);font-size:14px;line-height:1.55}
+.auth-mobile-logo{display:none}
+.auth-foot{color:var(--muted);font-size:12px;margin:0}
+
+.auth-field{margin-bottom:18px}
+.auth-field label{display:block;font-weight:500;font-size:13px;margin-bottom:7px;color:var(--ink2)}
+.auth-field .req{color:var(--bad);margin-left:2px}
+.auth-field input{width:100%;height:48px!important;padding:0 14px;border-radius:12px;border:1px solid var(--line2);background:var(--panel);color:var(--ink);font-size:15px;transition:border-color .15s,box-shadow .15s}
+.auth-field input:hover{border-color:color-mix(in srgb,var(--line2) 50%,var(--muted))}
+.auth-field input:focus{outline:none;border-color:var(--brand3);box-shadow:0 0 0 4px color-mix(in srgb,var(--brand3) 18%,transparent)}
+.auth-field.invalid input{border-color:var(--bad);box-shadow:0 0 0 4px color-mix(in srgb,var(--bad) 12%,transparent)}
+.auth-err{display:flex;gap:6px;align-items:center;color:var(--bad);font-size:12.5px;font-weight:500;margin-top:7px}
+.auth-err:empty{display:none}
+.auth-hint{color:var(--muted);font-size:12px;margin-top:7px}
+
+.auth-pw{position:relative}
+.auth-pw input{padding-right:52px}
+.auth-eye{position:absolute;right:5px;top:5px;width:38px;height:38px;padding:0;border:0;border-radius:9px;cursor:pointer;display:grid;place-items:center;background:transparent;color:var(--muted)}
+.auth-eye:hover{background:var(--hover);color:var(--ink)}
+.auth-eye .i-hide{display:none}
+.auth-eye[aria-pressed="true"] .i-show{display:none}
+.auth-eye[aria-pressed="true"] .i-hide{display:block}
+.auth-eye:focus-visible,.auth-submit:focus-visible,.auth-switch a:focus-visible,.auth-check input:focus-visible{outline:3px solid color-mix(in srgb,var(--brand3) 55%,transparent);outline-offset:2px}
+
+.auth-row{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin:2px 0 22px}
+.auth-check{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink2);cursor:pointer;user-select:none}
+.auth-check input{width:18px;height:18px;accent-color:var(--brand3)}
+.auth-forgot{font-size:12.5px;color:var(--muted)}
+
+.auth-submit{width:100%;height:50px;border:0;border-radius:12px;cursor:pointer;margin-top:4px;background:var(--brand);color:#fff;font-size:15px;font-weight:600;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:background .15s,transform .06s,box-shadow .15s;box-shadow:0 1px 2px rgba(16,24,20,.1),0 8px 20px color-mix(in srgb,var(--brand) 24%,transparent)}
+.auth-submit:hover{background:var(--brand2)}
+.auth-submit:active{transform:translateY(1px)}
+.auth-submit:disabled{cursor:progress;opacity:.85}
+.auth-spin{display:none;width:17px;height:17px;border-radius:50%;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:auth-rot .7s linear infinite}
+.auth-submit.loading .auth-spin{display:inline-block}
+@keyframes auth-rot{to{transform:rotate(360deg)}}
+
+.auth-alert{border-radius:12px;padding:12px 14px;font-size:13.5px;margin-bottom:18px;background:var(--bad-bg);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 22%,transparent);line-height:1.5}
+.auth-alert.ok{background:var(--ok-bg);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 22%,transparent)}
+.auth-alert.info{background:var(--info-bg);color:var(--info);border-color:color-mix(in srgb,var(--info) 22%,transparent)}
+.auth-alert code{font-family:var(--mono);font-size:12.5px;word-break:break-all}
+
+.auth-switch{text-align:center;margin:22px 0 0;font-size:14px;color:var(--muted)}
+.auth-switch a{color:var(--brand3);font-weight:600;text-decoration:none;border-radius:4px}
+.auth-switch a:hover{text-decoration:underline}
+
+/* ---- tablet & phone: the brand panel becomes a green header with the logo ---- */
+@media (max-width:960px){
+  .auth{grid-template-columns:minmax(0,1fr)}
+  .auth-brand{display:none}
+  .auth-panel{justify-content:flex-start;padding:0 16px 28px;gap:18px}
+  .auth-mobile-logo{display:flex;justify-content:center;align-items:center;width:calc(100% + 32px);margin:0 -16px;padding:28px 16px 64px;background:linear-gradient(160deg,#143426 0%,#0d241a 100%)}
+  .auth-mobile-logo img{width:108px;height:auto}
+  .auth-card{margin-top:-44px;position:relative}
+}
+@media (max-width:480px){
+  .auth-card{padding:28px 20px 24px;border-radius:16px}
+  .auth-card h1{font-size:23px}
+  .auth-sub{margin-bottom:22px}
+  .auth-field input{font-size:16px}
+}
+@media (max-width:340px){
+  .auth-card{padding:24px 16px 20px}
+}
+@media (prefers-reduced-motion:reduce){.auth-spin{animation-duration:2s}.auth-submit,.auth-field input{transition:none}}
