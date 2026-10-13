@@ -17,6 +17,14 @@ Options -Indexes
     # Code, secrets, data and logs are never served
     RewriteRule ^(app|bootstrap|config|database|deploy|docs|legacy|resources|routes|storage|tests|tools|vendor|node_modules|\.git|\.github)(/|$) - [F,L]
 
+    # HTTPS only (login cookies are secure-only); behind Cloudflare the origin may see http + X-Forwarded-Proto
+    RewriteCond %{ENV:REDIRECT_STATUS} ^$
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$
+    RewriteCond %{REQUEST_URI} !^/\.well-known/
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
