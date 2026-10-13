@@ -87,6 +87,27 @@ jobs:
             phpunit.xml
             start-erp.bat
 
+      # A folder created by cPanel Git Version Control is 0700: the web server cannot read it and every URL is 404.
+      - name: Fix permissions (folders 755, web files 644)
+        if: env.HAS_FTP == 'true'
+        continue-on-error: true
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR || './' }}
+        run: |
+          sudo apt-get install -y -qq lftp > /dev/null
+          lftp -u "$FTP_USERNAME,$FTP_PASSWORD" "$FTP_SERVER" -e "
+            set ftp:ssl-allow no; set cmd:fail-exit no;
+            cd '$FTP_SERVER_DIR';
+            chmod 755 . erp erp/fonts public public/erp public/erp/fonts storage bootstrap bootstrap/cache vendor app config database resources routes;
+            chmod 644 index.php .htaccess robots.txt version.txt favicon.ico favicon-32.png apple-touch-icon.png icon-192.png icon-512.png sundaybazarlogo.png site.webmanifest;
+            chmod 644 erp/app.js erp/app.css erp/auth.js erp/auth.css erp/pre.js erp/post.js erp/shopify.js erp/access.js;
+            chmod 644 public/index.php public/.htaccess vendor/autoload.php;
+            ls -la;
+            bye"
+
       - name: Run migrations and refresh caches on the server
         if: env.HAS_FTP == 'true' && env.HAS_HOOK == 'true'
         env:
