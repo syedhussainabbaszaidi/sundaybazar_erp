@@ -83,7 +83,10 @@ class DashboardAndDeploymentTest extends TestCase
             $this->assertMatchesRegularExpression('/FilesMatch "[^"]*\b'.$ext.'\b/', $h);
         }
         $this->assertMatchesRegularExpression('#RewriteRule \^\((app\|bootstrap\|config\|database[^)]*storage[^)]*vendor[^)]*)\)#', $h);
-        $this->assertStringContainsString('RewriteRule ^(.*)$ public/$1', $h);
+        // the folder rule comes before the front controller, so /app/... can never reach index.php
+        $this->assertLessThan(strpos($h, 'RewriteRule ^ index.php'), strpos($h, 'RewriteRule ^(app|'));
+        // the deploy workflow writes the root index.php the rewrite points to
+        $this->assertStringContainsString("__DIR__.'/vendor/autoload.php'", str_replace("__DIR__.'/../", "__DIR__.'/", file_get_contents(public_path('index.php'))));
     }
 
     public function test_database_sql_has_every_table_of_the_migrations(): void

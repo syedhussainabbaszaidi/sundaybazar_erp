@@ -1,5 +1,5 @@
-# Used only when the domain's document root is the project folder (cPanel default for a new subdomain).
-# Best: document root = public/. Either way, everything is served from public/ and nothing else is reachable.
+# Used when the domain's document root is the project folder (how erp.sundaybazar.com.pk is set up on cPanel).
+# The deploy workflow copies public/ files (erp/, icons, robots.txt) and a root index.php into this folder.
 Options -Indexes
 
 # Private files: .env*, dot files, SQL dumps, logs, docs, composer/package files, scripts, PHP settings
@@ -8,15 +8,30 @@ Options -Indexes
 </FilesMatch>
 
 <IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+    </IfModule>
+
     RewriteEngine On
 
     # Code, secrets, data and logs are never served
     RewriteRule ^(app|bootstrap|config|database|deploy|docs|legacy|resources|routes|storage|tests|tools|vendor|node_modules|\.git|\.github)(/|$) - [F,L]
 
-    # SSL certificate checks (AutoSSL / Let's Encrypt) stay in the project folder
-    RewriteRule ^\.well-known/ - [L]
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Everything else is served from public/ (public/.htaccess then hands it to Laravel)
-    RewriteCond %{REQUEST_URI} !^/public/
-    RewriteRule ^(.*)$ public/$1 [L]
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller (root index.php, written by the deploy workflow)...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
 </IfModule>

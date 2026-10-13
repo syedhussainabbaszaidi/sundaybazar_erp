@@ -55,6 +55,16 @@ jobs:
         if: env.HAS_FTP == 'true'
         run: echo "$GITHUB_SHA" > public/version.txt
 
+      # erp.sundaybazar.com.pk serves the project folder itself, so the public/ files also go to the root
+      # (works the same if the document root is ever switched to public/)
+      - name: Copy public files to the project root
+        if: env.HAS_FTP == 'true'
+        run: |
+          cp -a public/erp .
+          cp -a public/*.png public/*.ico public/robots.txt public/site.webmanifest public/version.txt .
+          sed "s#__DIR__.'/../#__DIR__.'/#g" public/index.php > index.php
+          grep -q "__DIR__.'/vendor/autoload.php'" index.php
+
       - name: Upload changed files over FTP
         if: env.HAS_FTP == 'true'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5

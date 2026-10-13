@@ -25,3 +25,12 @@ Thumbs.db
 /storage/app/private/erp-files
 /legacy/server/node_modules
 /storage/framework/testing
+# copied from public/ to the project root by the deploy workflow (cPanel document root = project folder)
+/index.php
+/erp/
+/*.png
+/*.ico
+/robots.txt
+/site.webmanifest
+/version.txt
+/public/version.txt
